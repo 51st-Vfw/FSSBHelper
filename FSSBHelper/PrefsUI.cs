@@ -33,6 +33,8 @@ namespace FSSBHelper
             _isUILoaded = false;
             _monitor = monitor;
             InitializeComponent();
+
+            this.SizeChanged += new EventHandler(PrefsUI_SizeChanged);
         }
 
         public void UpdateDCSStatus(bool isRunning)
@@ -308,7 +310,7 @@ namespace FSSBHelper
             this.WindowState = FormWindowState.Normal;
         }
 
-        private void Window_StateChanged(object sender, EventArgs e)
+        private void PrefsUI_SizeChanged(object sender, EventArgs e)
         {
             if (this.WindowState == FormWindowState.Minimized)
             {
