@@ -92,7 +92,7 @@ namespace FSSBHelper
             this.uxComboDevice.FormattingEnabled = true;
             this.uxComboDevice.Location = new System.Drawing.Point(96, 12);
             this.uxComboDevice.Name = "uxComboDevice";
-            this.uxComboDevice.Size = new System.Drawing.Size(337, 21);
+            this.uxComboDevice.Size = new System.Drawing.Size(293, 21);
             this.uxComboDevice.TabIndex = 1;
             this.uxComboDevice.SelectedIndexChanged += new System.EventHandler(this.uxComboDevice_SelectedIndexChanged);
             // 
@@ -109,11 +109,11 @@ namespace FSSBHelper
             // uxLabelVersion
             // 
             this.uxLabelVersion.AutoSize = true;
-            this.uxLabelVersion.Location = new System.Drawing.Point(333, 377);
+            this.uxLabelVersion.Location = new System.Drawing.Point(289, 377);
             this.uxLabelVersion.Name = "uxLabelVersion";
             this.uxLabelVersion.Size = new System.Drawing.Size(100, 13);
             this.uxLabelVersion.TabIndex = 0;
-            this.uxLabelVersion.Text = "Version 2.0.1 BETA";
+            this.uxLabelVersion.Text = "Version 2.0.2 BETA";
             this.uxLabelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // uxSliderSamplePeriod
@@ -122,7 +122,7 @@ namespace FSSBHelper
             this.uxSliderSamplePeriod.Maximum = 20;
             this.uxSliderSamplePeriod.Minimum = 2;
             this.uxSliderSamplePeriod.Name = "uxSliderSamplePeriod";
-            this.uxSliderSamplePeriod.Size = new System.Drawing.Size(284, 45);
+            this.uxSliderSamplePeriod.Size = new System.Drawing.Size(240, 45);
             this.uxSliderSamplePeriod.TabIndex = 3;
             this.uxSliderSamplePeriod.Value = 2;
             this.uxSliderSamplePeriod.Scroll += new System.EventHandler(this.uxSliderSamplePeriod_Scroll);
@@ -162,7 +162,7 @@ namespace FSSBHelper
             this.uxGroupThreshold.Controls.Add(this.uxCheckThreshold);
             this.uxGroupThreshold.Location = new System.Drawing.Point(12, 117);
             this.uxGroupThreshold.Name = "uxGroupThreshold";
-            this.uxGroupThreshold.Size = new System.Drawing.Size(422, 142);
+            this.uxGroupThreshold.Size = new System.Drawing.Size(377, 142);
             this.uxGroupThreshold.TabIndex = 8;
             this.uxGroupThreshold.TabStop = false;
             this.uxGroupThreshold.Text = "T";
@@ -182,7 +182,7 @@ namespace FSSBHelper
             this.uxSliderThresholdVol.Location = new System.Drawing.Point(66, 91);
             this.uxSliderThresholdVol.Maximum = 100;
             this.uxSliderThresholdVol.Name = "uxSliderThresholdVol";
-            this.uxSliderThresholdVol.Size = new System.Drawing.Size(311, 45);
+            this.uxSliderThresholdVol.Size = new System.Drawing.Size(303, 45);
             this.uxSliderThresholdVol.TabIndex = 10;
             this.uxSliderThresholdVol.TickFrequency = 10;
             this.uxSliderThresholdVol.Scroll += new System.EventHandler(this.uxSliderThresholdVol_Scroll);
@@ -203,7 +203,7 @@ namespace FSSBHelper
             this.uxSliderThreshold.Location = new System.Drawing.Point(66, 19);
             this.uxSliderThreshold.Maximum = 100;
             this.uxSliderThreshold.Name = "uxSliderThreshold";
-            this.uxSliderThreshold.Size = new System.Drawing.Size(311, 45);
+            this.uxSliderThreshold.Size = new System.Drawing.Size(263, 45);
             this.uxSliderThreshold.TabIndex = 7;
             this.uxSliderThreshold.TickFrequency = 10;
             this.uxSliderThreshold.Scroll += new System.EventHandler(this.uxSliderThreshold_Scroll);
@@ -231,7 +231,7 @@ namespace FSSBHelper
             // uxLabelThresholdVal
             // 
             this.uxLabelThresholdVal.AutoSize = true;
-            this.uxLabelThresholdVal.Location = new System.Drawing.Point(383, 23);
+            this.uxLabelThresholdVal.Location = new System.Drawing.Point(335, 23);
             this.uxLabelThresholdVal.Name = "uxLabelThresholdVal";
             this.uxLabelThresholdVal.Size = new System.Drawing.Size(33, 13);
             this.uxLabelThresholdVal.TabIndex = 0;
@@ -259,7 +259,7 @@ namespace FSSBHelper
             this.uxGroupLimit.Controls.Add(this.uxLabelLimitVol);
             this.uxGroupLimit.Location = new System.Drawing.Point(12, 265);
             this.uxGroupLimit.Name = "uxGroupLimit";
-            this.uxGroupLimit.Size = new System.Drawing.Size(422, 101);
+            this.uxGroupLimit.Size = new System.Drawing.Size(377, 101);
             this.uxGroupLimit.TabIndex = 9;
             this.uxGroupLimit.TabStop = false;
             this.uxGroupLimit.Text = "L";
@@ -269,7 +269,7 @@ namespace FSSBHelper
             this.uxSliderLimitVol.Location = new System.Drawing.Point(66, 50);
             this.uxSliderLimitVol.Maximum = 100;
             this.uxSliderLimitVol.Name = "uxSliderLimitVol";
-            this.uxSliderLimitVol.Size = new System.Drawing.Size(303, 45);
+            this.uxSliderLimitVol.Size = new System.Drawing.Size(302, 45);
             this.uxSliderLimitVol.TabIndex = 14;
             this.uxSliderLimitVol.TickFrequency = 10;
             this.uxSliderLimitVol.Scroll += new System.EventHandler(this.uxSliderLimitVol_Scroll);
@@ -327,7 +327,7 @@ namespace FSSBHelper
             // uxLabelSamplePeriodVal
             // 
             this.uxLabelSamplePeriodVal.AutoSize = true;
-            this.uxLabelSamplePeriodVal.Location = new System.Drawing.Point(386, 62);
+            this.uxLabelSamplePeriodVal.Location = new System.Drawing.Point(342, 62);
             this.uxLabelSamplePeriodVal.Name = "uxLabelSamplePeriodVal";
             this.uxLabelSamplePeriodVal.Size = new System.Drawing.Size(47, 13);
             this.uxLabelSamplePeriodVal.TabIndex = 0;
@@ -349,7 +349,7 @@ namespace FSSBHelper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(446, 398);
+            this.ClientSize = new System.Drawing.Size(401, 398);
             this.Controls.Add(this.uxCheckMonitorDCS);
             this.Controls.Add(this.uxLabelSamplePeriodVal);
             this.Controls.Add(this.uxLabelSamplePeriod);
