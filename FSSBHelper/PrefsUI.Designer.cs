@@ -349,7 +349,7 @@ namespace FSSBHelper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(401, 398);
+            this.ClientSize = new System.Drawing.Size(402, 399);
             this.Controls.Add(this.uxCheckMonitorDCS);
             this.Controls.Add(this.uxLabelSamplePeriodVal);
             this.Controls.Add(this.uxLabelSamplePeriod);
@@ -363,6 +363,8 @@ namespace FSSBHelper
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(418, 438);
+            this.MinimumSize = new System.Drawing.Size(418, 438);
             this.Name = "PrefsUI";
             this.ShowInTaskbar = false;
             this.Text = "FSSBHelper Settings";
