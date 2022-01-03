@@ -24,13 +24,14 @@ namespace FSSBHelper
             }
         }
 
-        public JoystickHelper(Settings settings) 
+        public JoystickHelper(string deviceName)
         {
             var device = _DInput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly)
-                .FirstOrDefault(p => string.Equals(p.InstanceName, settings.JoystickName, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(p => string.Equals(p.InstanceName, deviceName, StringComparison.OrdinalIgnoreCase));
 
+// TODO: error alert here...
             if (device == null)
-                throw new Exception($"Joystick ({settings.JoystickName}) NOT FOUND!!!");
+                throw new Exception($"Joystick ({deviceName}) NOT FOUND!!!");
 
             _Joystick = new Joystick(_DInput, device.InstanceGuid);
             _Joystick.Properties.AxisMode = DeviceAxisMode.Absolute; //align with axis range %

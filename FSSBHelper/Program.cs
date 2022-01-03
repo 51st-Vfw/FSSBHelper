@@ -1,58 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace FSSBHelper
 {
-    public sealed class Program
+    internal static class Program
     {
-        public static void Main(string[] args)
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-            try
-            {
-                Console.WriteLine("Starting FSSBHelper");
-                Run();
-            }
-            catch (Exception ex)
-            {
-                WaitToExit($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
-            }
-            finally
-            {
-                Console.WriteLine("Closing FSSBHelper");
-            }
-        }
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-        private static void Run()
-        {
-            var settings = new Settings();
-            using (var joystick = new JoystickHelper(settings))
-            {
-                if (settings.Debug)
-                    Console.WriteLine($"*DEBUG MODE ENABLED* - {joystick}");
+            var monitor = new JoystickMonitor();
 
-                using (var audio = new AudioHelper(settings))
-                    using (var monitor = new JoystickMonitor(joystick, audio, settings))
-                    {
-                        monitor.Start();
-                        WaitToExit($"Monitoring ({settings.JoystickName}) every {settings.IntervalMS} milliseconds");
-                    }
-            }
+            Application.Run(monitor.PrefsUI);
 
-            if (settings.Debug)
-            {
-                Console.WriteLine($"*DEBUG MODE COMPLETE*");
-                System.Threading.Thread.Sleep(2000);
-            }
-
-        }
-
-        private static void WaitToExit(string message)
-        {
-            Console.WriteLine("");
-            Console.WriteLine(message);
-            Console.WriteLine("");
-            Console.WriteLine("Press Enter to Exit");
-            Console.WriteLine("");
-            Console.ReadLine(); //hold program!
+            monitor.Dispose();
         }
     }
 }
