@@ -2,7 +2,8 @@
 //
 // PrefsUI.cs: FSSBHelper Preferences/Settings UI
 //
-// Copyright (C) 2021 twillis / ilominar
+// Copyright (c) 2021 pch07 / Rage
+// Copyright (C) 2021-22 twillis / ilominar / Raven
 //
 // This program is free software: you can redistribute it and/or modify it under the terms of
 // the GNU General Public License as published by the Free Software Foundation, either version
