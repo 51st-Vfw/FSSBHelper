@@ -1,4 +1,24 @@
-﻿using System;
+﻿// ********************************************************************************************
+//
+// Settings.cs: FSSBHelper Settings Abstraction
+//
+// Copyright (c) 2021 pch07 / Rage
+// Copyright (C) 2021-22 twillis / ilominar / Raven
+//
+// This program is free software: you can redistribute it and/or modify it under the terms of
+// the GNU General Public License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <https://www.gnu.org/licenses/>.
+//
+// ********************************************************************************************
+
+using System;
 using System.Configuration;
 
 namespace FSSBHelper
@@ -29,16 +49,10 @@ namespace FSSBHelper
         public string LimitCue { get; set; }
         public int LimitVol { get; set; }
 
-
-        public bool Debug { get; private set; }
-        public string JoystickName { get; private set; }
-        public int IntervalMS { get; private set; }
-        public double MaxPercent { get; private set; }
-        public int AlertHz { get; private set; }
-        public int AlertDuration { get; private set; }
-
         public Settings()
         {
+            // Set up the default settings if no settings are available.
+            //
             AddUpdateAppSettings(keyDeviceName, "FSSB R3L MJF SGRH", false);
             AddUpdateAppSettings(keyEnableMonitorDCS, "false", false);
             AddUpdateAppSettings(keySamplePeriodMs, "250", false);
@@ -50,6 +64,8 @@ namespace FSSBHelper
             AddUpdateAppSettings(keyLimitVol, "50", false);
             AddUpdateAppSettings(keyLimitCue, "350Hz Tone", false);
 
+            // Set up instance properties with the settings values.
+            //
             DeviceName = ConfigurationManager.AppSettings[keyDeviceName].ToString();
             EnableMonitorDCS = bool.Parse(ConfigurationManager.AppSettings[keyEnableMonitorDCS].ToString());
             SamplePeriodMs = int.Parse(ConfigurationManager.AppSettings[keySamplePeriodMs].ToString());
@@ -62,6 +78,8 @@ namespace FSSBHelper
             LimitVol = int.Parse(ConfigurationManager.AppSettings[keyLimitVol].ToString());
         }
 
+        // Persist the settings curently in the instance properties to the configuration manager.
+        //
         public void Persist()
         {
             AddUpdateAppSettings(keyDeviceName, DeviceName, true);
@@ -96,6 +114,7 @@ namespace FSSBHelper
             }
             catch (ConfigurationErrorsException)
             {
+// TODO: some kind of error UX here?
                 Console.WriteLine("FSSBHelper: Error writing app settings");
             }
         }
