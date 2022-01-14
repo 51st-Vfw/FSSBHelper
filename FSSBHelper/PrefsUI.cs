@@ -27,6 +27,7 @@ namespace FSSBHelper
     {
         private JoystickMonitor _monitor;
         private bool _isUILoaded;
+        private const int _SampleScale = 25;
 
         public PrefsUI(JoystickMonitor monitor)
         {
@@ -35,21 +36,29 @@ namespace FSSBHelper
             InitializeComponent();
 
             this.SizeChanged += new EventHandler(PrefsUI_SizeChanged);
+
+            _monitor.DCSStatusChanged += _monitor_DCSStatusChanged;
         }
 
-        public void UpdateDCSStatus(bool isRunning)
+        private void _monitor_DCSStatusChanged(object sender, EventArgs e)
+        {
+            UpdateDCSStatus();
+        }
+
+        public void UpdateDCSStatus()
         {
             if (!_monitor.IsDeviceValid)
             {
                 uxLabelStatus.Text = "FSSBHelper is inactive, invalid device";
                 uxIconNotify.Text = "FSSBHelper: Inactive (Device Invalid)";
+                uxComboDevice.SelectedIndex = -1; //reset!
             }
             else if (!_monitor.Settings.EnableMonitorDCS)
             {
                 uxLabelStatus.Text = "FSSBHelper is active";
                 uxIconNotify.Text = "FSSBHelper: Active";
             }
-            else if (isRunning)
+            else if (_monitor.IsDCSRunning)
             {
                 uxLabelStatus.Text = "FSSBHelper is active, DCS is currently running";
                 uxIconNotify.Text = "FSSBHelper: Active, DCS Running";
@@ -71,10 +80,9 @@ namespace FSSBHelper
             // ---- Device Widgets
 
             uxComboDevice.Items.Clear();
-            foreach (String name in _monitor.DeviceNames)
-            {
+            foreach (String name in _monitor.Devices)
                 uxComboDevice.Items.Add(name);
-            }
+
             if (uxComboDevice.Items.Contains(_monitor.Settings.DeviceName))
                 uxComboDevice.SelectedIndex = uxComboDevice.Items.IndexOf(_monitor.Settings.DeviceName);
             else
@@ -82,7 +90,7 @@ namespace FSSBHelper
 
             uxCheckMonitorDCS.Checked = _monitor.Settings.EnableMonitorDCS;
 
-            uxSliderSamplePeriod.Value = _monitor.Settings.SamplePeriodMs / 50;
+            uxSliderSamplePeriod.Value = _monitor.Settings.SamplePeriodMs / _SampleScale;
             uxSliderSamplePeriod_Scroll(null, null);
 
             // ---- Threshold Widgets
@@ -120,7 +128,9 @@ namespace FSSBHelper
 
             // ---- Miscellaneous Widgets
 
-            UpdateDCSStatus(false);
+            UpdateDCSStatus();
+
+            _monitor.BeginTimedMonitors(); //we are ready to start!
 
             _isUILoaded = true;
         }
@@ -149,13 +159,13 @@ namespace FSSBHelper
                 var isEnabled = uxCheckMonitorDCS.Checked;
                 _monitor.Settings.EnableMonitorDCS = isEnabled;
                 _monitor.Settings.Persist();
-                _monitor.UpdatedMonitorDCS();
+                _monitor.BeginTimedMonitors();
             }
         }
 
         private void uxSliderSamplePeriod_Scroll(object sender, EventArgs e)
         {
-            var ms = uxSliderSamplePeriod.Value * 50;
+            var ms = uxSliderSamplePeriod.Value * _SampleScale;
             uxLabelSamplePeriodVal.Text = ms.ToString() + " ms";
 
             if (_isUILoaded)
@@ -321,6 +331,22 @@ namespace FSSBHelper
             {
                 uxIconNotify.Visible = false;
                 this.ShowInTaskbar = true;
+            }
+        }
+
+        private void uxComboDevice_DropDown(object sender, EventArgs e)
+        {
+            if (uxComboDevice.SelectedIndex > -1)
+                return;
+
+            uxComboDevice.Items.Clear();
+            foreach (String name in _monitor.Devices)
+                uxComboDevice.Items.Add(name);
+
+            if (uxComboDevice.Items.Contains(_monitor.Settings.DeviceName)) //re-init as it was now detected...
+            {
+                uxComboDevice.SelectedIndex = uxComboDevice.Items.IndexOf(_monitor.Settings.DeviceName);
+                _monitor.UpdatedDevice(_monitor.Settings.DeviceName);
             }
         }
     }

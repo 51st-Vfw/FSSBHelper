@@ -60,6 +60,24 @@ namespace FSSBHelper
 
         public override string ToString() => $"{_Joystick.Information.InstanceName}: {_Joystick.Information.InstanceGuid}";
 
+        /// <summary>
+        /// Get the currently active Joysticks
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetActiveJoysticks()
+        {
+            using (var dinput = new DirectInput())
+            {
+                var result = dinput
+                    .GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly)
+                    .Select(p => p.InstanceName)
+                    .OrderBy(p => p)
+                    .ToArray();
+
+                return result;
+            }
+        }
+
         public void Dispose()
         {
             if (_Joystick != null)

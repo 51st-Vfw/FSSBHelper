@@ -19,9 +19,6 @@
 // ********************************************************************************************
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FSSBHelper
@@ -37,11 +34,8 @@ namespace FSSBHelper
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var monitor = new JoystickMonitor();
-
-            Application.Run(monitor.PrefsUI);
-
-            monitor.Dispose();
+            using (var monitor = new JoystickMonitor())
+                Application.Run(new PrefsUI(monitor));
         }
     }
 }

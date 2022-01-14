@@ -94,6 +94,7 @@ namespace FSSBHelper
             this.uxComboDevice.Name = "uxComboDevice";
             this.uxComboDevice.Size = new System.Drawing.Size(293, 21);
             this.uxComboDevice.TabIndex = 1;
+            this.uxComboDevice.DropDown += new System.EventHandler(this.uxComboDevice_DropDown);
             this.uxComboDevice.SelectedIndexChanged += new System.EventHandler(this.uxComboDevice_SelectedIndexChanged);
             // 
             // uxLabelStatus
@@ -118,9 +119,10 @@ namespace FSSBHelper
             // 
             // uxSliderSamplePeriod
             // 
+            this.uxSliderSamplePeriod.LargeChange = 2;
             this.uxSliderSamplePeriod.Location = new System.Drawing.Point(96, 62);
-            this.uxSliderSamplePeriod.Maximum = 20;
-            this.uxSliderSamplePeriod.Minimum = 2;
+            this.uxSliderSamplePeriod.Maximum = 40;
+            this.uxSliderSamplePeriod.Minimum = 1;
             this.uxSliderSamplePeriod.Name = "uxSliderSamplePeriod";
             this.uxSliderSamplePeriod.Size = new System.Drawing.Size(240, 45);
             this.uxSliderSamplePeriod.TabIndex = 3;

@@ -23,10 +23,10 @@
 #undef DEBUG_LOGGING
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
-
-using SharpDX.DirectInput;
+using System.Windows;
 
 namespace FSSBHelper
 {
@@ -44,54 +44,53 @@ namespace FSSBHelper
         private const int _intervalCheckDCS = 15000;        // 15s between DCS checks
         private const int _maxInt = 65535;
 
-        public PrefsUI PrefsUI { get; private set; }
         public Settings Settings { get; private set; }
-        public System.Collections.Generic.IList<String> DeviceNames { get; private set; }
+        public bool IsDCSRunning { get; private set; }
+        public bool IsDeviceValid { get { return _joystick != null; } }
+        public string[] Devices { get { return JoystickHelper.GetActiveJoysticks(); } }
 
-        private System.Windows.Forms.Timer _timerCheckDCS;
-        private System.Windows.Forms.Timer _timerSample;
+        /// <summary>
+        /// Will trigger when DCS has changed from Active to In-Active or vice-versa
+        /// Use IsDCSRunning for actual current state
+        /// </summary>
+        public event EventHandler DCSStatusChanged;
+
+        private readonly System.Windows.Forms.Timer _timerCheckDCS;
+        private readonly System.Windows.Forms.Timer _timerSample;
         private JoystickHelper _joystick;
         private AudioHelper _audioThreshold;
         private AudioHelper _audioLimit;
-        private bool _isDCSRunning;
-        private int _samplePeriodMs;
         private int _alertLowerMax;
         private int _alertUpperMin;
-        
-        public bool IsDeviceValid { get { return (_joystick != null); } }
 
         public JoystickMonitor()
         {
-            _timerCheckDCS = null;
-
-            _timerSample = new System.Windows.Forms.Timer();
-            _timerSample.Tick += new EventHandler(_timerSample_Tick);
-
-            Settings = new Settings();
-
-            var dinput = new DirectInput();
-            var devices = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
-            DeviceNames = new List<String>();
-            foreach (DeviceInstance device in devices)
-                DeviceNames.Add(device.InstanceName);
-            dinput.Dispose();
-
-            PrefsUI = new PrefsUI(this);
-
-            UpdatedDevice(Settings.DeviceName);
-            UpdatedSampleRate();
-            UpdatedMonitorDCS();
+            Settings = new Settings(); //first!
             UpdatedThresholdCues(Settings.EnableThreshold, CueUpdates.All);
             UpdatedLimitCues(Settings.EnableLimit, CueUpdates.All);
+            AssignDevice(Settings.DeviceName);
+
+            _timerSample = new System.Windows.Forms.Timer
+            {
+                Interval = Settings.SamplePeriodMs
+            };
+            _timerSample.Tick += new EventHandler(_timerSample_Tick);
+
+            _timerCheckDCS = new System.Windows.Forms.Timer
+            {
+                Interval = _intervalCheckDCS
+            };
+            _timerCheckDCS.Tick += new EventHandler(_timerCheckDCS_Tick);
+
         }
 
         public void Dispose()
         {
-            _timerCheckDCS?.Stop();
-            _timerCheckDCS?.Dispose();
+            _timerCheckDCS.Stop();
+            _timerCheckDCS.Dispose();
 
-            _timerSample?.Stop();
-            _timerSample?.Dispose();
+            _timerSample.Stop();
+            _timerSample.Dispose();
 
             _joystick?.Dispose();
 
@@ -99,62 +98,50 @@ namespace FSSBHelper
             _audioLimit?.Dispose();
         }
 
-        // Device to monitor has been changed. Attempt to create a new joystick helper to
-        // handle interactions with the joystick.
-        //
+        /// <summary>
+        /// Device to monitor has been changed. Attempt to create a new joystick helper to handle interactions with the joystick.
+        /// </summary>
+        /// <param name="deviceName"></param>
+        /// <param name="isInit"></param>
         public void UpdatedDevice(string deviceName)
         {
-            if (_joystick != null)
-                _joystick.Dispose();
-            if ((deviceName != null) && DeviceNames.Contains(deviceName))
-                _joystick = new JoystickHelper(deviceName);
-            else
-                _joystick = null;
+            AssignDevice(deviceName);
+            BeginTimedMonitors(); //restart state 
         }
 
-        // TODO
-        //
-        public void UpdatedMonitorDCS()
+        /// <summary>
+        /// Setup and process the appropriate timer(s) based on current preferences
+        /// </summary>
+        public void BeginTimedMonitors()
         {
-            if (Settings.EnableMonitorDCS && (_timerCheckDCS == null))
-            {
-                _isDCSRunning = false;
+            _timerCheckDCS.Stop();
+            _timerSample.Stop();
+            IsDCSRunning = false;
 
-                _timerCheckDCS = new System.Windows.Forms.Timer();
-                _timerCheckDCS.Interval = _intervalCheckDCS;
-                _timerCheckDCS.Tick += new EventHandler(_timerCheckDCS_Tick);
+            if (DCSStatusChanged != null)
+                DCSStatusChanged(this, new EventArgs());
+
+            if (Settings.EnableMonitorDCS)
                 _timerCheckDCS.Start();
-
-                _timerSample.Stop();
-            }
-            else if (!Settings.EnableMonitorDCS)
-            {
-                _isDCSRunning = false;
-
-                if (_timerCheckDCS != null)
-                {
-                    _timerCheckDCS.Stop();
-                    _timerCheckDCS.Dispose();
-                    _timerCheckDCS = null;
-                }
-
-                _timerSample.Interval = _samplePeriodMs;
+            else
                 _timerSample.Start();
-            }
-            PrefsUI.UpdateDCSStatus(_isDCSRunning);
         }
 
-        // TODO
-        //
+        /// <summary>
+        /// Retrieve current preference and assign to timer
+        /// </summary>
         public void UpdatedSampleRate()
         {
-            _samplePeriodMs = Settings.SamplePeriodMs;
+            _timerSample.Interval = Settings.SamplePeriodMs;
         }
 
-        // Threshold cue settings have changed. Release any previously allocated AudioHelper
-        // that was handling the threshold audio and allocate a new helper with the new
-        // configuration. Update the min/max bounds of the threshold.
-        //
+        /// <summary>
+        /// Threshold cue settings have changed. Release any previously allocated AudioHelper
+        /// that was handling the threshold audio and allocate a new helper with the new
+        /// configuration. Update the min/max bounds of the threshold.
+        /// </summary>
+        /// <param name="isEnabled"></param>
+        /// <param name="updated"></param>
         public void UpdatedThresholdCues(bool isEnabled, CueUpdates updated)
         {
             if ((updated == CueUpdates.All) || ((updated & CueUpdates.Threshold) == CueUpdates.Threshold))
@@ -188,9 +175,12 @@ namespace FSSBHelper
 #endif
         }
 
-        // Limit cue settings have changed. Release any previously allocated AudioHelper that
-        // was handling the limit audio and allocate a new helper with the new configuration.
-        //
+        /// <summary>
+        /// Limit cue settings have changed. Release any previously allocated AudioHelper that
+        /// was handling the limit audio and allocate a new helper with the new configuration.
+        /// </summary>
+        /// <param name="isEnabled"></param>
+        /// <param name="updated"></param>
         public void UpdatedLimitCues(bool isEnabled, CueUpdates updated)
         {
             if ((updated == CueUpdates.All) || ((updated & CueUpdates.Name) == CueUpdates.Name))
@@ -220,59 +210,87 @@ namespace FSSBHelper
         private bool IsAlert(double value) => ((value < _alertLowerMax) || (value > _alertUpperMin));
         private bool IsLimit(double value) => ((value == 0) || (value == _maxInt));
 
-        // Check to see if DCS is running, starting or stopping the main sampling timer as
-        // necessary.
-        //
-        private void _timerCheckDCS_Tick(object sender, EventArgs e)
-        {
-            Process[] processDCS = Process.GetProcessesByName("DCS");
-            if (!_isDCSRunning && (processDCS.Length > 0))
-            {
-                // Console.WriteLine("Idle --> DCS Running");
-                _isDCSRunning = true;
-                _timerSample.Interval = _samplePeriodMs;
-                _timerSample.Start();
-                PrefsUI.UpdateDCSStatus(_isDCSRunning);
-            }
-            else if (_isDCSRunning && (processDCS.Length == 0))
-            {
-                // Console.WriteLine("DCS Running --> Idle");
-                _isDCSRunning = false;
-                _timerSample.Stop();
-                PrefsUI.UpdateDCSStatus(_isDCSRunning);
-            }
-        }
-
-        // TODO
-        //
-        private void _timerSample_Tick(object sender, EventArgs e)
+        private void AssignDevice(string deviceName)
         {
             if (_joystick != null)
             {
+                _joystick.Dispose();
+                _joystick = null;
+            }
+
+            if (deviceName != null && Devices.Contains(deviceName))
+                _joystick = new JoystickHelper(deviceName);
+        }
+
+        /// <summary>
+        /// Check to see if DCS is running, starting or stopping the main sampling timer as necessary.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void _timerCheckDCS_Tick(object sender, EventArgs e)
+        {
+            var processDCS = Process.GetProcessesByName("DCS");
+            if (!IsDCSRunning && (processDCS.Length > 0))
+            {
+                IsDCSRunning = true;
+                _timerSample.Start();
+
+                DCSStatusChanged(this, new EventArgs());
+            }
+            else if (IsDCSRunning && (processDCS.Length == 0))
+            {
+                IsDCSRunning = false;
                 _timerSample.Stop();
 
-                var axis = _joystick.Axis;
-                if ((_audioLimit != null) && (IsLimit(axis.X) || IsLimit(axis.Y)))
-                {
-                    _audioLimit.Play();
-                    _timerSample.Interval = 300;
-                }
-                else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
-                {
-                    _audioThreshold.Play();
-                    _timerSample.Interval = 500;
-                }
-                else
-                {
-                    _timerSample.Interval = _samplePeriodMs;
-                }
+                DCSStatusChanged(this, new EventArgs());
+            }
 
-                _timerSample.Start();
+        }
+
+        /// <summary>
+        /// Process the actual audio alert
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void _timerSample_Tick(object sender, EventArgs e)
+        {
+            _timerSample.Stop(); //not sure i agree with stopping just to process audio :-)
+
+            if (_joystick == null)
+                return;
+
+            if (_audioLimit == null && _audioThreshold == null)
+                return;
+
+            var axis = new Vector();
+            try
+            {
+                axis = _joystick.Axis;
 
 #if DEBUG_LOGGING
                 Console.WriteLine($"x {axis.X}, y {axis.Y} | al: v < {_alertLowerMax}, au: v > {_alertUpperMin}");
 #endif
             }
+            catch (Exception ex) //joystick is not currently reachable... (ie was unplugged)
+            {
+#if DEBUG_LOGGING
+                Console.WriteLine(ex.Message);
+#endif
+                _joystick?.Dispose();
+                _joystick = null; //reset entirely
+
+                DCSStatusChanged(this, new EventArgs());
+
+                return;
+            }
+
+            if ((_audioLimit != null) && (IsLimit(axis.X) || IsLimit(axis.Y)))
+                _audioLimit.Play();
+            else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
+                _audioThreshold.Play();
+
+            _timerSample.Start(); //start again..ehhh...
+
         }
     }
 }
