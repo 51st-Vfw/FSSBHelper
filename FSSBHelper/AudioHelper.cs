@@ -27,6 +27,12 @@ namespace FSSBHelper
     {
         private MediaPlayer _audioPlayer;
 
+        public int Volume
+        {
+            get { return (int)(_audioPlayer.Volume * 100.0); }
+            set { _audioPlayer.Volume = (double)value * 0.01; }
+        }
+
         public AudioHelper(string filename, int volume, bool isOneShot)
         {
             _audioPlayer = new MediaPlayer();
@@ -49,9 +55,6 @@ namespace FSSBHelper
             _audioPlayer.Stop();
             _audioPlayer.Close();
         }
-
-        public int Volume { get { return (int) (_audioPlayer.Volume * 100.0); }
-                            set { _audioPlayer.Volume = (double) value * 0.01; } }
 
         public void Play()
         {

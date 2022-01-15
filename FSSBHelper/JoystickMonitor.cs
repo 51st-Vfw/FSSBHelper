@@ -254,18 +254,13 @@ namespace FSSBHelper
         /// <param name="e"></param>
         private void _timerSample_Tick(object sender, EventArgs e)
         {
-            _timerSample.Stop(); //not sure i agree with stopping just to process audio :-)
-
-            if (_joystick == null)
-                return;
-
-            if (_audioLimit == null && _audioThreshold == null)
-                return;
-
             var axis = new Vector();
             try
             {
-                axis = _joystick.Axis;
+                if (_audioLimit == null && _audioThreshold == null)
+                    throw new NullReferenceException("Audio");
+
+                axis = _joystick.Axis; //nre ok
 
 #if DEBUG_LOGGING
                 Console.WriteLine($"x {axis.X}, y {axis.Y} | al: v < {_alertLowerMax}, au: v > {_alertUpperMin}");
@@ -273,9 +268,13 @@ namespace FSSBHelper
             }
             catch (Exception ex) //joystick is not currently reachable... (ie was unplugged)
             {
+
 #if DEBUG_LOGGING
                 Console.WriteLine(ex.Message);
 #endif
+
+                _timerSample.Stop();
+
                 _joystick?.Dispose();
                 _joystick = null; //reset entirely
 
@@ -288,8 +287,6 @@ namespace FSSBHelper
                 _audioLimit.Play();
             else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
                 _audioThreshold.Play();
-
-            _timerSample.Start(); //start again..ehhh...
 
         }
     }
