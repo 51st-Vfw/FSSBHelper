@@ -153,8 +153,13 @@ namespace FSSBHelper
 
             if ((updated == CueUpdates.All) || ((updated & CueUpdates.Name) == CueUpdates.Name))
             {
-                _audioThreshold?.Dispose();
-                _audioThreshold = null;
+                if (_audioThreshold != null)
+                {
+                    _audioThreshold.AudioCompleted -= _audioThreshold_AudioCompleted;
+                    _audioThreshold.Dispose();
+                    _audioThreshold = null;
+                }
+
             }
 
             if (isEnabled)
@@ -163,6 +168,7 @@ namespace FSSBHelper
                 {
                     var filename = Settings.FilenameForCue(Settings.ThresholdCue);
                     _audioThreshold = new AudioHelper(filename, Settings.ThresholdVol, false);
+                    _audioThreshold.AudioCompleted += _audioThreshold_AudioCompleted;
                 }
                 else if ((updated & CueUpdates.Volume) == CueUpdates.Volume)
                 {
@@ -175,6 +181,11 @@ namespace FSSBHelper
 #endif
         }
 
+        private void _audioThreshold_AudioCompleted(object sender, EventArgs e)
+        {
+            _timerSample.Start();
+        }
+
         /// <summary>
         /// Limit cue settings have changed. Release any previously allocated AudioHelper that
         /// was handling the limit audio and allocate a new helper with the new configuration.
@@ -185,8 +196,12 @@ namespace FSSBHelper
         {
             if ((updated == CueUpdates.All) || ((updated & CueUpdates.Name) == CueUpdates.Name))
             {
-                _audioLimit?.Dispose();
-                _audioLimit = null;
+                if (_audioLimit != null)
+                {
+                    _audioLimit.AudioCompleted -= _audioLimit_AudioCompleted;
+                    _audioLimit.Dispose();
+                    _audioLimit = null;
+                }
             }
 
             if (isEnabled)
@@ -195,6 +210,7 @@ namespace FSSBHelper
                 {
                     var filename = Settings.FilenameForCue(Settings.LimitCue);
                     _audioLimit = new AudioHelper(filename, Settings.LimitVol, false);
+                    _audioLimit.AudioCompleted += _audioLimit_AudioCompleted;
                 }
                 else if ((updated & CueUpdates.Volume) == CueUpdates.Volume)
                 {
@@ -205,6 +221,11 @@ namespace FSSBHelper
 #if DEBUG_LOGGING
             Console.WriteLine($"UpdatedLimitCues: cue {Settings.LimitCue}, vol {Settings.LimitVol}");
 #endif
+        }
+
+        private void _audioLimit_AudioCompleted(object sender, EventArgs e)
+        {
+            _timerSample.Start();
         }
 
         private bool IsAlert(double value) => ((value < _alertLowerMax) || (value > _alertUpperMin));
@@ -254,6 +275,8 @@ namespace FSSBHelper
         /// <param name="e"></param>
         private void _timerSample_Tick(object sender, EventArgs e)
         {
+            _timerSample.Stop();
+
             var axis = new Vector();
             try
             {
@@ -273,8 +296,6 @@ namespace FSSBHelper
                 Console.WriteLine(ex.Message);
 #endif
 
-                _timerSample.Stop();
-
                 _joystick?.Dispose();
                 _joystick = null; //reset entirely
 
@@ -287,6 +308,8 @@ namespace FSSBHelper
                 _audioLimit.Play();
             else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
                 _audioThreshold.Play();
+            else
+                _timerSample.Start();
 
         }
     }

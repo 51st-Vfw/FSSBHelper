@@ -33,6 +33,9 @@ namespace FSSBHelper
             set { _audioPlayer.Volume = (double)value * 0.01; }
         }
 
+        public event EventHandler AudioCompleted;
+
+
         public AudioHelper(string filename, int volume, bool isOneShot)
         {
             _audioPlayer = new MediaPlayer();
@@ -56,6 +59,7 @@ namespace FSSBHelper
             _audioPlayer.Close();
         }
 
+
         public void Play()
         {
             _audioPlayer.Play();
@@ -65,12 +69,16 @@ namespace FSSBHelper
         {
             _audioPlayer.Stop();
             _audioPlayer.Position = TimeSpan.Zero;
+            if (AudioCompleted != null)
+                AudioCompleted(this, new EventArgs());
         }
 
         private void _audioPlayerOneShot_MediaEnded(object sender, EventArgs e)
         {
             _audioPlayer.Stop();
-            _audioPlayer.Close();
+            _audioPlayer.Close(); //todo: why is this close vs Position 0?
+            if (AudioCompleted != null)
+                AudioCompleted(this, new EventArgs());
         }
 
     }
