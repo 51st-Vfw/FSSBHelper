@@ -284,10 +284,19 @@ namespace FSSBHelper
             }
 
             if ((_audioLimit != null) && (IsLimit(axis.X) || IsLimit(axis.Y)))
+            {
+                _timerSample.Interval = 300;
                 _audioLimit.Play();
+            }
             else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
+            {
+                _timerSample.Interval = 500;
                 _audioThreshold.Play();
-
+            }
+            else
+            {
+                _timerSample.Interval = Settings.SamplePeriodMs;
+            }
         }
     }
 }
