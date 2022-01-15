@@ -1,58 +1,41 @@
-﻿using System;
+﻿// ********************************************************************************************
+//
+// Program.cs: FSSBHelper Top Level
+//
+// Copyright (c) 2021 pch07 / Rage
+// Copyright (C) 2021-22 twillis / ilominar / Raven
+//
+// This program is free software: you can redistribute it and/or modify it under the terms of
+// the GNU General Public License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along with this program.
+// If not, see <https://www.gnu.org/licenses/>.
+//
+// ********************************************************************************************
+
+using System;
+using System.Windows.Forms;
 
 namespace FSSBHelper
 {
-    public sealed class Program
+    internal static class Program
     {
-        public static void Main(string[] args)
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-            try
-            {
-                Console.WriteLine("Starting FSSBHelper");
-                Run();
-            }
-            catch (Exception ex)
-            {
-                WaitToExit($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
-            }
-            finally
-            {
-                Console.WriteLine("Closing FSSBHelper");
-            }
-        }
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-        private static void Run()
-        {
-            var settings = new Settings();
-            using (var joystick = new JoystickHelper(settings))
-            {
-                if (settings.Debug)
-                    Console.WriteLine($"*DEBUG MODE ENABLED* - {joystick}");
-
-                using (var audio = new AudioHelper(settings))
-                    using (var monitor = new JoystickMonitor(joystick, audio, settings))
-                    {
-                        monitor.Start();
-                        WaitToExit($"Monitoring ({settings.JoystickName}) every {settings.IntervalMS} milliseconds");
-                    }
-            }
-
-            if (settings.Debug)
-            {
-                Console.WriteLine($"*DEBUG MODE COMPLETE*");
-                System.Threading.Thread.Sleep(2000);
-            }
-
-        }
-
-        private static void WaitToExit(string message)
-        {
-            Console.WriteLine("");
-            Console.WriteLine(message);
-            Console.WriteLine("");
-            Console.WriteLine("Press Enter to Exit");
-            Console.WriteLine("");
-            Console.ReadLine(); //hold program!
+            using (var monitor = new JoystickMonitor())
+                Application.Run(new PrefsUI(monitor));
         }
     }
 }
