@@ -110,11 +110,11 @@ namespace FSSBHelper
             // uxLabelVersion
             // 
             this.uxLabelVersion.AutoSize = true;
-            this.uxLabelVersion.Location = new System.Drawing.Point(289, 377);
+            this.uxLabelVersion.Location = new System.Drawing.Point(320, 377);
             this.uxLabelVersion.Name = "uxLabelVersion";
-            this.uxLabelVersion.Size = new System.Drawing.Size(100, 13);
+            this.uxLabelVersion.Size = new System.Drawing.Size(69, 13);
             this.uxLabelVersion.TabIndex = 0;
-            this.uxLabelVersion.Text = "Version 2.0.2 BETA";
+            this.uxLabelVersion.Text = "Version 2.0.2";
             this.uxLabelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // uxSliderSamplePeriod
