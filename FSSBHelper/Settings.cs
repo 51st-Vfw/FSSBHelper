@@ -27,6 +27,7 @@ namespace FSSBHelper
     {
         private const string keyDeviceName = "DeviceName";
         private const string keyEnableMonitorDCS = "EnableMonitorDCS";
+        private const string keyEnableDecoupledMode = "EnableDecoupledMode";
         private const string keySamplePeriodMs = "SamplePeriodMs";
         private const string keyEnableThreshold = "EnableThreshold";
         private const string keyThreshold = "Threshold";
@@ -38,6 +39,7 @@ namespace FSSBHelper
 
         public string DeviceName { get; set; }
         public bool EnableMonitorDCS { get; set; }
+        public bool EnableDecoupledMode { get; set; }
         public int SamplePeriodMs { get; set; }
 
         public bool EnableThreshold { get; set; }
@@ -55,6 +57,7 @@ namespace FSSBHelper
             //
             AddUpdateAppSettings(keyDeviceName, "FSSB R3L MJF SGRH", false);
             AddUpdateAppSettings(keyEnableMonitorDCS, "false", false);
+            AddUpdateAppSettings(keyEnableDecoupledMode, "false", false);
             AddUpdateAppSettings(keySamplePeriodMs, "250", false);
             AddUpdateAppSettings(keyEnableThreshold, "true", false);
             AddUpdateAppSettings(keyThreshold, "80", false);
@@ -68,6 +71,7 @@ namespace FSSBHelper
             //
             DeviceName = ConfigurationManager.AppSettings[keyDeviceName].ToString();
             EnableMonitorDCS = bool.Parse(ConfigurationManager.AppSettings[keyEnableMonitorDCS].ToString());
+            EnableDecoupledMode = bool.Parse(ConfigurationManager.AppSettings[keyEnableDecoupledMode].ToString());
             SamplePeriodMs = int.Parse(ConfigurationManager.AppSettings[keySamplePeriodMs].ToString());
             EnableThreshold = bool.Parse(ConfigurationManager.AppSettings[keyEnableThreshold].ToString());
             Threshold = int.Parse(ConfigurationManager.AppSettings[keyThreshold].ToString());
@@ -84,6 +88,7 @@ namespace FSSBHelper
         {
             AddUpdateAppSettings(keyDeviceName, DeviceName, true);
             AddUpdateAppSettings(keyEnableMonitorDCS, EnableMonitorDCS.ToString(), true);
+            AddUpdateAppSettings(keyEnableDecoupledMode, EnableDecoupledMode.ToString(), true);
             AddUpdateAppSettings(keySamplePeriodMs, SamplePeriodMs.ToString(), true);
             AddUpdateAppSettings(keyEnableThreshold, EnableThreshold.ToString(), true);
             AddUpdateAppSettings(keyThreshold, Threshold.ToString(), true);
