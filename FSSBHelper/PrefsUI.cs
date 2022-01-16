@@ -89,6 +89,7 @@ namespace FSSBHelper
                 uxComboDevice.SelectedIndex = -1;
 
             uxCheckMonitorDCS.Checked = _monitor.Settings.EnableMonitorDCS;
+            uxCheckDecouple.Checked = _monitor.Settings.EnableDecoupledMode;
 
             uxSliderSamplePeriod.Value = _monitor.Settings.SamplePeriodMs / _SampleScale;
             uxSliderSamplePeriod_Scroll(null, null);
