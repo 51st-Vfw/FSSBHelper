@@ -184,6 +184,14 @@ namespace FSSBHelper
                 var isEnabled = uxCheckDecouple.Checked;
                 _monitor.Settings.EnableDecoupledMode = isEnabled;
                 _monitor.Settings.Persist();
+
+                // TODO: it would be nice if we didn't have to restart, consider dynamically
+                // TODO: changing the JoystickMonitor that PrefsUI uses.
+
+                string message = "FSSBHelper must be restarted for this change to take effect.\n"
+                               + "Please quit and re-launch FSSBHelper to apply the change.";
+                string title = "Restart FSSBHelper";
+                MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
