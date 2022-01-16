@@ -30,7 +30,7 @@ using System.Windows;
 
 namespace FSSBHelper
 {
-    public sealed class JoystickMonitor : IDisposable
+    public abstract class JoystickMonitor : IDisposable
     {
         [Flags]
         public enum CueUpdates
@@ -50,22 +50,34 @@ namespace FSSBHelper
         public string[] Devices { get { return JoystickHelper.GetActiveJoysticks(); } }
 
         /// <summary>
-        /// Will trigger when DCS has changed from Active to In-Active or vice-versa
-        /// Use IsDCSRunning for actual current state
+        /// Will trigger when DCS has changed from Active to In-Active or vice-versa. Use
+        /// IsDCSRunning for actual current state
         /// </summary>
         public event EventHandler DCSStatusChanged;
 
-        private readonly System.Windows.Forms.Timer _timerCheckDCS;
-        private readonly System.Windows.Forms.Timer _timerSample;
-        private JoystickHelper _joystick;
-        private AudioHelper _audioThreshold;
-        private AudioHelper _audioLimit;
-        private int _alertLowerMax;
-        private int _alertUpperMin;
+        protected readonly System.Windows.Forms.Timer _timerCheckDCS;
+        protected readonly System.Windows.Forms.Timer _timerSample;
+        protected JoystickHelper _joystick;
+        protected AudioHelper _audioThreshold;
+        protected AudioHelper _audioLimit;
+        protected int _alertLowerMax;
+        protected int _alertUpperMin;
 
-        public JoystickMonitor()
+        /// <summary>
+        /// Check if an axis value is beyond the alert threshold.
+        /// </summary>
+        /// <param name="value"></param>
+        protected bool IsAlert(double value) => ((value < _alertLowerMax) || (value > _alertUpperMin));
+
+        /// <summary>
+        /// Check if an axis value is at its limit.
+        /// </summary>
+        /// <param name="value"></param>
+        protected bool IsLimit(double value) => ((value == 0) || (value == _maxInt));
+
+        public JoystickMonitor(Settings appSettings)
         {
-            Settings = new Settings(); //first!
+            Settings = appSettings; //first!
             UpdatedThresholdCues(Settings.EnableThreshold, CueUpdates.All);
             UpdatedLimitCues(Settings.EnableLimit, CueUpdates.All);
             AssignDevice(Settings.DeviceName);
@@ -81,7 +93,6 @@ namespace FSSBHelper
                 Interval = _intervalCheckDCS
             };
             _timerCheckDCS.Tick += new EventHandler(_timerCheckDCS_Tick);
-
         }
 
         public void Dispose()
@@ -96,17 +107,6 @@ namespace FSSBHelper
 
             _audioThreshold?.Dispose();
             _audioLimit?.Dispose();
-        }
-
-        /// <summary>
-        /// Device to monitor has been changed. Attempt to create a new joystick helper to handle interactions with the joystick.
-        /// </summary>
-        /// <param name="deviceName"></param>
-        /// <param name="isInit"></param>
-        public void UpdatedDevice(string deviceName)
-        {
-            AssignDevice(deviceName);
-            BeginTimedMonitors(); //restart state 
         }
 
         /// <summary>
@@ -127,8 +127,32 @@ namespace FSSBHelper
                 _timerSample.Start();
         }
 
+        private void AssignDevice(string deviceName)
+        {
+            if (_joystick != null)
+            {
+                _joystick.Dispose();
+                _joystick = null;
+            }
+
+            if (deviceName != null && Devices.Contains(deviceName))
+                _joystick = new JoystickHelper(deviceName);
+        }
+
         /// <summary>
-        /// Retrieve current preference and assign to timer
+        /// Device to monitor has been changed. Attempt to create a new joystick helper to handle
+        /// interactions with the joystick.
+        /// </summary>
+        /// <param name="deviceName"></param>
+        /// <param name="isInit"></param>
+        public void UpdatedDevice(string deviceName)
+        {
+            AssignDevice(deviceName);
+            BeginTimedMonitors(); //restart state 
+        }
+
+        /// <summary>
+        /// Sample rate has changed. Retrieve current preference and assign to timer.
         /// </summary>
         public void UpdatedSampleRate()
         {
@@ -146,7 +170,7 @@ namespace FSSBHelper
         {
             if ((updated == CueUpdates.All) || ((updated & CueUpdates.Threshold) == CueUpdates.Threshold))
             {
-                var steps = (int) Math.Round((Settings.Threshold * 0.01) * (_maxInt / 2));
+                var steps = (int)Math.Round((Settings.Threshold * 0.01) * (_maxInt / 2));
                 _alertLowerMax = (_maxInt / 2) - steps;
                 _alertUpperMin = (_maxInt / 2) + steps;
             }
@@ -159,7 +183,6 @@ namespace FSSBHelper
                     _audioThreshold.Dispose();
                     _audioThreshold = null;
                 }
-
             }
 
             if (isEnabled)
@@ -179,11 +202,6 @@ namespace FSSBHelper
 #if DEBUG_LOGGING
             Console.WriteLine($"UpdatedThresholdCues: alert [{_alertLowerMax}, {_alertUpperMin}], cue {Settings.ThresholdCue}, vol {Settings.ThresholdVol}");
 #endif
-        }
-
-        private void _audioThreshold_AudioCompleted(object sender, EventArgs e)
-        {
-            _timerSample.Start();
         }
 
         /// <summary>
@@ -223,24 +241,14 @@ namespace FSSBHelper
 #endif
         }
 
-        private void _audioLimit_AudioCompleted(object sender, EventArgs e)
+        private void _audioThreshold_AudioCompleted(object sender, EventArgs e)
         {
-            _timerSample.Start();
+            HandleCueAudioCompleted(sender, e, _audioThreshold);
         }
 
-        private bool IsAlert(double value) => ((value < _alertLowerMax) || (value > _alertUpperMin));
-        private bool IsLimit(double value) => ((value == 0) || (value == _maxInt));
-
-        private void AssignDevice(string deviceName)
+        private void _audioLimit_AudioCompleted(object sender, EventArgs e)
         {
-            if (_joystick != null)
-            {
-                _joystick.Dispose();
-                _joystick = null;
-            }
-
-            if (deviceName != null && Devices.Contains(deviceName))
-                _joystick = new JoystickHelper(deviceName);
+            HandleCueAudioCompleted(sender, e, _audioLimit);
         }
 
         /// <summary>
@@ -275,8 +283,6 @@ namespace FSSBHelper
         /// <param name="e"></param>
         private void _timerSample_Tick(object sender, EventArgs e)
         {
-            _timerSample.Stop();
-
             var axis = new Vector();
             try
             {
@@ -291,7 +297,6 @@ namespace FSSBHelper
             }
             catch (Exception ex) //joystick is not currently reachable... (ie was unplugged)
             {
-
 #if DEBUG_LOGGING
                 Console.WriteLine(ex.Message);
 #endif
@@ -304,13 +309,63 @@ namespace FSSBHelper
                 return;
             }
 
+            _timerSample.Stop();
+            HandleTimerSampleTick(sender, e, axis);
+        }
+
+        /// <summary>
+        /// Handle a tick on the sample timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="axis"></param>
+        public abstract void HandleTimerSampleTick(object sender, EventArgs e, Vector axis);
+
+        /// <summary>
+        /// Handle the completion of an audio cue.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="cue"></param>
+        public abstract void HandleCueAudioCompleted(object sender, EventArgs e, AudioHelper cue);
+    }
+
+    /// <summary>
+    /// Joystick monitor that couples the audio cues to the sample timer. In this implementation,
+    /// the cues are always timed to the sample timer interval.
+    /// </summary>
+    public sealed class JoystickMonitorCoupled : JoystickMonitor
+    {
+        public JoystickMonitorCoupled(Settings appSettings) : base(appSettings)
+        {
+        }
+
+        /// <summary>
+        /// Handle completion of an audio cue when audio and sampling is coupled.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public override void HandleCueAudioCompleted(object sender, EventArgs e, AudioHelper cue)
+        {
+            _timerSample.Start();
+        }
+
+        /// <summary>
+        /// Handle sample timer ticks when audio and sampling is coupled.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="axis"></param>
+        public override void HandleTimerSampleTick(object sender, EventArgs e, Vector axis)
+        {
+            _timerSample.Stop();
+
             if ((_audioLimit != null) && (IsLimit(axis.X) || IsLimit(axis.Y)))
                 _audioLimit.Play();
             else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
                 _audioThreshold.Play();
             else
                 _timerSample.Start();
-
         }
     }
 }

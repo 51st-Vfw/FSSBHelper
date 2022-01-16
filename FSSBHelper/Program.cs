@@ -34,7 +34,8 @@ namespace FSSBHelper
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            using (var monitor = new JoystickMonitor())
+            var settings = new Settings();
+            using (var monitor = new JoystickMonitorCoupled(settings))
                 Application.Run(new PrefsUI(monitor));
         }
     }
