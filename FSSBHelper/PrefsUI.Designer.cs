@@ -58,6 +58,7 @@ namespace FSSBHelper
             this.uxLabelSamplePeriod = new System.Windows.Forms.Label();
             this.uxLabelSamplePeriodVal = new System.Windows.Forms.Label();
             this.uxCheckMonitorDCS = new System.Windows.Forms.CheckBox();
+            this.uxCheckDecouple = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.uxSliderSamplePeriod)).BeginInit();
             this.uxGroupThreshold.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.uxSliderThresholdVol)).BeginInit();
@@ -100,7 +101,7 @@ namespace FSSBHelper
             // uxLabelStatus
             // 
             this.uxLabelStatus.AutoSize = true;
-            this.uxLabelStatus.Location = new System.Drawing.Point(9, 377);
+            this.uxLabelStatus.Location = new System.Drawing.Point(12, 390);
             this.uxLabelStatus.Name = "uxLabelStatus";
             this.uxLabelStatus.Size = new System.Drawing.Size(138, 13);
             this.uxLabelStatus.TabIndex = 0;
@@ -110,11 +111,11 @@ namespace FSSBHelper
             // uxLabelVersion
             // 
             this.uxLabelVersion.AutoSize = true;
-            this.uxLabelVersion.Location = new System.Drawing.Point(320, 377);
+            this.uxLabelVersion.Location = new System.Drawing.Point(320, 390);
             this.uxLabelVersion.Name = "uxLabelVersion";
             this.uxLabelVersion.Size = new System.Drawing.Size(69, 13);
             this.uxLabelVersion.TabIndex = 0;
-            this.uxLabelVersion.Text = "Version 2.0.2";
+            this.uxLabelVersion.Text = "Version 2.1.0";
             this.uxLabelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // uxSliderSamplePeriod
@@ -132,7 +133,7 @@ namespace FSSBHelper
             // uxCheckThreshold
             // 
             this.uxCheckThreshold.AutoSize = true;
-            this.uxCheckThreshold.Location = new System.Drawing.Point(8, 0);
+            this.uxCheckThreshold.Location = new System.Drawing.Point(6, -1);
             this.uxCheckThreshold.Name = "uxCheckThreshold";
             this.uxCheckThreshold.Size = new System.Drawing.Size(215, 17);
             this.uxCheckThreshold.TabIndex = 4;
@@ -143,7 +144,7 @@ namespace FSSBHelper
             // uxCheckLimit
             // 
             this.uxCheckLimit.AutoSize = true;
-            this.uxCheckLimit.Location = new System.Drawing.Point(8, -1);
+            this.uxCheckLimit.Location = new System.Drawing.Point(6, 0);
             this.uxCheckLimit.Name = "uxCheckLimit";
             this.uxCheckLimit.Size = new System.Drawing.Size(168, 17);
             this.uxCheckLimit.TabIndex = 11;
@@ -153,6 +154,7 @@ namespace FSSBHelper
             // 
             // uxGroupThreshold
             // 
+            this.uxGroupThreshold.Controls.Add(this.uxCheckThreshold);
             this.uxGroupThreshold.Controls.Add(this.uxButtonThresholdCue);
             this.uxGroupThreshold.Controls.Add(this.uxSliderThresholdVol);
             this.uxGroupThreshold.Controls.Add(this.uxComboThresholdCue);
@@ -161,8 +163,7 @@ namespace FSSBHelper
             this.uxGroupThreshold.Controls.Add(this.uxLabelThresholdVol);
             this.uxGroupThreshold.Controls.Add(this.uxLabelThresholdVal);
             this.uxGroupThreshold.Controls.Add(this.uxLabelThreshold);
-            this.uxGroupThreshold.Controls.Add(this.uxCheckThreshold);
-            this.uxGroupThreshold.Location = new System.Drawing.Point(12, 117);
+            this.uxGroupThreshold.Location = new System.Drawing.Point(12, 138);
             this.uxGroupThreshold.Name = "uxGroupThreshold";
             this.uxGroupThreshold.Size = new System.Drawing.Size(377, 142);
             this.uxGroupThreshold.TabIndex = 8;
@@ -259,7 +260,7 @@ namespace FSSBHelper
             this.uxGroupLimit.Controls.Add(this.uxCheckLimit);
             this.uxGroupLimit.Controls.Add(this.uxLabelLimitCue);
             this.uxGroupLimit.Controls.Add(this.uxLabelLimitVol);
-            this.uxGroupLimit.Location = new System.Drawing.Point(12, 265);
+            this.uxGroupLimit.Location = new System.Drawing.Point(12, 286);
             this.uxGroupLimit.Name = "uxGroupLimit";
             this.uxGroupLimit.Size = new System.Drawing.Size(377, 101);
             this.uxGroupLimit.TabIndex = 9;
@@ -347,11 +348,23 @@ namespace FSSBHelper
             this.uxCheckMonitorDCS.UseVisualStyleBackColor = true;
             this.uxCheckMonitorDCS.CheckedChanged += new System.EventHandler(this.uxCheckMonitorDCS_CheckedChanged);
             // 
+            // uxCheckDecouple
+            // 
+            this.uxCheckDecouple.AutoSize = true;
+            this.uxCheckDecouple.Location = new System.Drawing.Point(18, 101);
+            this.uxCheckDecouple.Name = "uxCheckDecouple";
+            this.uxCheckDecouple.Size = new System.Drawing.Size(335, 17);
+            this.uxCheckDecouple.TabIndex = 10;
+            this.uxCheckDecouple.Text = "Decouple sampling and audio timers (requires FSSBHelper restart)";
+            this.uxCheckDecouple.UseVisualStyleBackColor = true;
+            this.uxCheckDecouple.CheckedChanged += new System.EventHandler(this.uxCheckDecouple_CheckedChanged);
+            // 
             // PrefsUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(402, 399);
+            this.ClientSize = new System.Drawing.Size(400, 411);
+            this.Controls.Add(this.uxCheckDecouple);
             this.Controls.Add(this.uxCheckMonitorDCS);
             this.Controls.Add(this.uxLabelSamplePeriodVal);
             this.Controls.Add(this.uxLabelSamplePeriod);
@@ -365,8 +378,8 @@ namespace FSSBHelper
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(418, 438);
-            this.MinimumSize = new System.Drawing.Size(418, 438);
+            this.MaximumSize = new System.Drawing.Size(416, 450);
+            this.MinimumSize = new System.Drawing.Size(416, 450);
             this.Name = "PrefsUI";
             this.ShowInTaskbar = false;
             this.Text = "FSSBHelper Settings";
@@ -413,6 +426,7 @@ namespace FSSBHelper
         private System.Windows.Forms.Label uxLabelLimitCue;
         private System.Windows.Forms.Label uxLabelLimitVol;
         private System.Windows.Forms.CheckBox uxCheckMonitorDCS;
+        private System.Windows.Forms.CheckBox uxCheckDecouple;
     }
 }
 

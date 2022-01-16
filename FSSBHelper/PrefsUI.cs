@@ -176,6 +176,16 @@ namespace FSSBHelper
             }
         }
 
+        private void uxCheckDecouple_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_isUILoaded)
+            {
+                var isEnabled = uxCheckDecouple.Checked;
+                _monitor.Settings.EnableDecoupledMode = isEnabled;
+                _monitor.Settings.Persist();
+            }
+        }
+
         // ---- Threshold Widgets
 
         private bool SyncThresholdWidgetsEnableState()
