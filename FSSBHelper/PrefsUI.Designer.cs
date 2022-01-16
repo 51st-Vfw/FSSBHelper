@@ -355,7 +355,7 @@ namespace FSSBHelper
             this.uxCheckDecouple.Name = "uxCheckDecouple";
             this.uxCheckDecouple.Size = new System.Drawing.Size(335, 17);
             this.uxCheckDecouple.TabIndex = 10;
-            this.uxCheckDecouple.Text = "Decouple sampling and audio timers (requires FSSBHelper restart)";
+            this.uxCheckDecouple.Text = "Decouple sampling and audio timing (requires FSSBHelper restart)";
             this.uxCheckDecouple.UseVisualStyleBackColor = true;
             this.uxCheckDecouple.CheckedChanged += new System.EventHandler(this.uxCheckDecouple_CheckedChanged);
             // 
