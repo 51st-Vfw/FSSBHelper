@@ -405,7 +405,7 @@ namespace FSSBHelper
             }
             else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
             {
-                _timerSample.Interval = 1000;
+                _timerSample.Interval = 500;
                 _audioThreshold.Play();
             }
             else
