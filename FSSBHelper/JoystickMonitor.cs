@@ -309,7 +309,6 @@ namespace FSSBHelper
                 return;
             }
 
-            _timerSample.Stop();
             HandleTimerSampleTick(sender, e, axis);
         }
 
@@ -366,6 +365,53 @@ namespace FSSBHelper
                 _audioThreshold.Play();
             else
                 _timerSample.Start();
+        }
+    }
+
+    /// <summary>
+    /// Joystick monitor that decouples the audio cues to the sample timer. In this implementation,
+    /// the cues are timed independently of the sample timer interval.
+    /// </summary>
+    public sealed class JoystickMonitorDecoupled : JoystickMonitor
+    {
+        public JoystickMonitorDecoupled(Settings appSettings) : base(appSettings)
+        {
+        }
+
+        /// <summary>
+        /// Handle completion of an audio cue when audio and sampling is decoupled.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public override void HandleCueAudioCompleted(object sender, EventArgs e, AudioHelper cue)
+        {
+            Console.WriteLine("test");
+        }
+
+        /// <summary>
+        /// Handle sample timer ticks when audio and sampling is decoupled.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="axis"></param>
+        public override void HandleTimerSampleTick(object sender, EventArgs e, Vector axis)
+        {
+            _timerSample.Stop();
+
+            if ((_audioLimit != null) && (IsLimit(axis.X) || IsLimit(axis.Y)))
+            {
+                _timerSample.Interval = 300;
+                _audioLimit.Play();
+            }
+            else if ((_audioThreshold != null) && (IsAlert(axis.X) || IsAlert(axis.Y)))
+            {
+                _timerSample.Interval = 1000;
+                _audioThreshold.Play();
+            }
+            else
+                _timerSample.Interval = Settings.SamplePeriodMs;
+
+            _timerSample.Start();
         }
     }
 }

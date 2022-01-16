@@ -35,8 +35,12 @@ namespace FSSBHelper
             Application.SetCompatibleTextRenderingDefault(false);
 
             var settings = new Settings();
-            using (var monitor = new JoystickMonitorCoupled(settings))
-                Application.Run(new PrefsUI(monitor));
+            if (settings.EnableDecoupledMode)
+                using (var monitor = new JoystickMonitorDecoupled(settings))
+                    Application.Run(new PrefsUI(monitor));
+            else
+                using (var monitor = new JoystickMonitorCoupled(settings))
+                    Application.Run(new PrefsUI(monitor));
         }
     }
 }
